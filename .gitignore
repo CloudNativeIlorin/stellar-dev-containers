@@ -1,0 +1,24 @@
+# Rust & Cargo
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# IDE & Editor files
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+
+# Docker & Local environment
+.env
+.env.local
+*.log
+
+# Dev container scratch
+.devcontainer/local-features

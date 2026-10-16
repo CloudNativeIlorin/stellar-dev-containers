@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  # =========================================================================
+  # Service 1: Soroban Builder & Development Container
+  # =========================================================================
+  soroban-builder:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cloudnativeilorin/stellar-dev-container:latest
+    container_name: soroban-builder
+    volumes:
+      - ./:/workspace
+      - cargo-cache:/usr/local/cargo/registry
+    working_dir: /workspace
+    environment:
+      - RUST_BACKTRACE=1
+    command: stellar --help
+
+  # =========================================================================
+  # Service 2: Stellar Quickstart RPC Node (Future Scaffolding)
+  # =========================================================================
+  # To run a local Stellar standalone or testnet node with Soroban RPC enabled,
+  # uncomment the service definition below:
+  #
+  # stellar-quickstart:
+  #   image: stellar/quickstart:latest
+  #   container_name: stellar-quickstart
+  #   ports:
+  #     - "8000:8000"
+  #   environment:
+  #     - ENABLE_SOROBAN_RPC=true
+  #   # Options:
+  #   #   Standalone (local isolated sandbox):
+  #   command: ["--standalone", "--enable-soroban-rpc"]
+  #   #   Testnet (connect to public testnet):
+  #   # command: ["--testnet", "--enable-soroban-rpc"]
+  #   volumes:
+  #     - stellar-data:/opt/stellar
+  #   networks:
+  #     - stellar-network
+
+volumes:
+  cargo-cache:
+  # stellar-data:
+
+# networks:
+#   stellar-network:
+#     driver: bridge
