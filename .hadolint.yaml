@@ -1,0 +1,16 @@
+# =============================================================================
+# Hadolint Configuration (.hadolint.yaml)
+# Maintained by Cloud Native Ilorin
+# =============================================================================
+
+# Strictness threshold: error, warning, info, style, or ignore
+failure-threshold: warning
+
+# Ignored rules with rationale:
+# DL3008: Pin versions in apt get install.
+# Rationale: In continuous development containers, pinning OS package patch versions 
+# (e.g. curl, git, pkg-config) on debian-slim frequently breaks upstream Docker builds 
+# as mirror snapshots advance and older patch versions are purged from Debian repositories.
+# Using --no-install-recommends and cleaning /var/lib/apt/lists/* maintains optimal image size.
+ignored:
+  - DL3008
