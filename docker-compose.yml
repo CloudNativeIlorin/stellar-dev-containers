@@ -17,34 +17,68 @@ services:
     environment:
       - RUST_BACKTRACE=1
     command: stellar --help
+    networks:
+      - stellar-net
 
   # =========================================================================
-  # Service 2: Stellar Quickstart RPC Node (Future Scaffolding)
+  # Service 2: Stellar Quickstart RPC Node (profile: local)
   # =========================================================================
-  # To run a local Stellar standalone or testnet node with Soroban RPC enabled,
-  # uncomment the service definition below:
-  #
-  # stellar-quickstart:
-  #   image: stellar/quickstart:latest
-  #   container_name: stellar-quickstart
-  #   ports:
-  #     - "8000:8000"
-  #   environment:
-  #     - ENABLE_SOROBAN_RPC=true
-  #   # Options:
-  #   #   Standalone (local isolated sandbox):
-  #   command: ["--standalone", "--enable-soroban-rpc"]
-  #   #   Testnet (connect to public testnet):
-  #   # command: ["--testnet", "--enable-soroban-rpc"]
-  #   volumes:
-  #     - stellar-data:/opt/stellar
-  #   networks:
-  #     - stellar-network
+  # Isolated standalone network with Soroban RPC, Horizon and Friendbot.
+  #   docker compose --profile local up -d stellar-quickstart
+  # Reachable from the host at http://localhost:8000/soroban/rpc and from
+  # soroban-builder at http://stellar-quickstart:8000/soroban/rpc
+  stellar-quickstart:
+    image: stellar/quickstart:latest
+    container_name: stellar-quickstart
+    profiles: ["local"]
+    ports:
+      - "8000:8000"
+    command: ["--local", "--enable", "rpc"]
+    volumes:
+      - stellar-data:/opt/stellar
+    networks:
+      stellar-net:
+        aliases:
+          - stellar-quickstart
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf -X POST -H 'Content-Type: application/json' -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"getHealth\"}' http://localhost:8000/soroban/rpc | grep -q healthy"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
+
+  # =========================================================================
+  # Service 3: Stellar Quickstart RPC Node (profile: testnet)
+  # =========================================================================
+  # Connects to the public testnet. Shares the `stellar-quickstart` network
+  # alias and host port 8000 with the local service, so run ONE profile at a
+  # time:
+  #   docker compose --profile testnet up -d stellar-quickstart-testnet
+  stellar-quickstart-testnet:
+    image: stellar/quickstart:latest
+    container_name: stellar-quickstart-testnet
+    profiles: ["testnet"]
+    ports:
+      - "8000:8000"
+    command: ["--testnet", "--enable", "rpc"]
+    volumes:
+      - stellar-data-testnet:/opt/stellar
+    networks:
+      stellar-net:
+        aliases:
+          - stellar-quickstart
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf -X POST -H 'Content-Type: application/json' -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"getHealth\"}' http://localhost:8000/soroban/rpc | grep -q healthy"]
+      interval: 15s
+      timeout: 10s
+      retries: 40
+      start_period: 120s
 
 volumes:
   cargo-cache:
-  # stellar-data:
+  stellar-data:
+  stellar-data-testnet:
 
-# networks:
-#   stellar-network:
-#     driver: bridge
+networks:
+  stellar-net:
+    driver: bridge

@@ -85,6 +85,60 @@ To drop into an interactive shell inside the container with your current workspa
 docker compose run --rm --entrypoint /bin/bash soroban-builder
 ```
 
+### Local Stellar Network (`stellar/quickstart`)
+
+`docker-compose.yml` ships a `stellar/quickstart` node with Soroban RPC enabled. Both services join the shared `stellar-net` network, so `soroban-builder` reaches the node by service name at `http://stellar-quickstart:8000/soroban/rpc`. Node state is persisted in the `stellar-data` volume (`stellar-data-testnet` for testnet).
+
+| Profile | Service | Network |
+| :--- | :--- | :--- |
+| `local` | `stellar-quickstart` | Isolated standalone network (`Standalone Network ; February 2017`) |
+| `testnet` | `stellar-quickstart-testnet` | Public testnet (`Test SDF Network ; September 2015`) |
+
+> Both profiles publish host port `8000` and share the `stellar-quickstart` network alias, so run **one profile at a time**.
+
+**1. Start the node**
+
+```bash
+# Local standalone network
+docker compose --profile local up -d stellar-quickstart
+
+# ...or public testnet
+docker compose --profile testnet up -d stellar-quickstart-testnet
+```
+
+The first start takes a minute or two. Wait until the container reports `healthy`:
+
+```bash
+docker compose ps
+curl -s -X POST -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"getHealth"}' \
+  http://localhost:8000/soroban/rpc
+```
+
+**2. Register the network with `stellar-cli`** (run inside `soroban-builder`, which resolves `stellar-quickstart` via the shared network):
+
+```bash
+# Local standalone
+docker compose run --rm soroban-builder stellar network add \
+  --rpc-url http://stellar-quickstart:8000/soroban/rpc \
+  --network-passphrase "Standalone Network ; February 2017" \
+  local
+
+# Public testnet
+docker compose run --rm soroban-builder stellar network add \
+  --rpc-url http://stellar-quickstart:8000/soroban/rpc \
+  --network-passphrase "Test SDF Network ; September 2015" \
+  testnet-local
+```
+
+From the host machine, use `http://localhost:8000/soroban/rpc` instead.
+
+**3. Stop the node**
+
+```bash
+docker compose --profile local down      # add -v to also wipe the stellar-data volume
+```
+
 ### Building a Soroban Smart Contract
 
 Place or generate your Soroban project in the repository root (or mount your contract directory):
