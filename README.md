@@ -25,6 +25,7 @@ By abstracting away local toolchain discrepancies (Rust versions, WebAssembly ta
 - **Pre-Configured Soroban WASM Target**: Comes out-of-the-box with `wasm32v1-none` configured for modern Soroban smart contract compilation.
 - **Latest Stellar CLI**: Ships with the official, optimized `stellar-cli` binary pre-compiled and placed in the system PATH.
 - **Docker Compose Orchestration**: Ready-to-use `docker-compose.yml` for interactive contract builds with persistent cargo caching.
+- **Ergonomic Makefile Shortcuts**: Pre-configured `make` helpers (`build`, `test`, `shell`, `clean`, `help`) for rapid everyday operations.
 - **Local RPC Ready**: Includes scaffolding for running a local Stellar testnet or standalone node via `stellar/quickstart`.
 - **Prepared for Drips Stellar Wave**: Seeded with beginner, intermediate, and advanced issues for open-source contributors.
 
@@ -76,6 +77,18 @@ Output should display the active Stellar CLI version (e.g., `stellar 22.x.x`).
 ---
 
 ## 💻 Developer Workflow
+
+### Makefile Shortcuts
+
+For everyday convenience, standard `make` targets are provided for fast local operations:
+
+| Target | Description | Equivalent Command |
+| :--- | :--- | :--- |
+| `make help` | Display available targets and descriptions | Formatted help menu |
+| `make build` | Build the container image via Docker Compose | `docker compose build` |
+| `make test` | Verify `stellar-cli` execution inside container | `docker compose run --rm soroban-builder stellar --version` |
+| `make shell` | Launch interactive `/bin/bash` in container | `docker compose run --rm --entrypoint /bin/bash soroban-builder` |
+| `make clean` | Prune unused builder containers and dangling layers | `docker compose down --remove-orphans && docker image prune ...` |
 
 ### Interactive Shell
 
