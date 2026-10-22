@@ -24,6 +24,7 @@ By abstracting away local toolchain discrepancies (Rust versions, WebAssembly ta
 - **Lightweight Multi-Stage Base**: Built on Debian slim (`rust:slim`) to balance minimal image footprints with developer ergonomics.
 - **Pre-Configured Soroban WASM Target**: Comes out-of-the-box with `wasm32v1-none` configured for modern Soroban smart contract compilation.
 - **Latest Stellar CLI**: Ships with the official, optimized `stellar-cli` binary pre-compiled and placed in the system PATH.
+- **Pre-Built Multi-Arch Registry**: Automated GitHub Container Registry (GHCR) images targeting both `linux/amd64` and `linux/arm64` (Apple Silicon & AWS Graviton).
 - **Docker Compose Orchestration**: Ready-to-use `docker-compose.yml` for interactive contract builds with persistent cargo caching.
 - **Local RPC Ready**: Includes scaffolding for running a local Stellar testnet or standalone node via `stellar/quickstart`.
 - **Prepared for Drips Stellar Wave**: Seeded with beginner, intermediate, and advanced issues for open-source contributors.
@@ -47,7 +48,15 @@ git clone https://github.com/CloudNativeIlorin/stellar-dev-containers.git
 cd stellar-dev-containers
 ```
 
-### 2. Build the Container Image
+### 1. Pull the Pre-Built Image from GHCR (Recommended)
+
+Save local compilation time by pulling the official multi-architecture image directly from the GitHub Container Registry:
+
+```bash
+docker pull ghcr.io/cloudnativeilorin/stellar-dev-containers:latest
+```
+
+### 2. Or Build the Container Image Locally
 
 Using Docker Compose:
 ```bash
@@ -56,7 +65,7 @@ docker compose build
 
 Or using standard Docker CLI:
 ```bash
-docker build -t stellar-dev-container .
+docker build -t ghcr.io/cloudnativeilorin/stellar-dev-containers:latest .
 ```
 
 ### 3. Verify the Installation
@@ -67,8 +76,8 @@ Confirm that `stellar-cli` is properly configured inside the container:
 # Using Docker Compose
 docker compose run --rm soroban-builder stellar --version
 
-# Using Docker CLI directly
-docker run --rm stellar-dev-container stellar --version
+# Using Docker CLI directly with the pre-built GHCR image
+docker run --rm ghcr.io/cloudnativeilorin/stellar-dev-containers:latest stellar --version
 ```
 
 Output should display the active Stellar CLI version (e.g., `stellar 22.x.x`).
